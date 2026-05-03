@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.idea/
+.vscode/
+data/accounts.csv
+data/transactions.csv
+_smoke*/
