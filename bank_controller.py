@@ -85,7 +85,8 @@ class BankController:
             The stripped, non-empty name.
 
         Raises:
-            ValueError: If the name is empty or overly long.
+            ValueError: If the name is empty, overly long, or contains
+                no letters (so a number-only name like "12345" is rejected).
         """
         if raw is None:
             raise ValueError("Account name is required.")
@@ -94,6 +95,15 @@ class BankController:
             raise ValueError("Account name is required.")
         if len(name) > 40:
             raise ValueError("Account name must be 40 characters or fewer.")
+        # The name has to contain at least one letter so people cannot
+        # open an account named "12345" or "555-1234".
+        has_letter = False
+        for character in name:
+            if character.isalpha():
+                has_letter = True
+                break
+        if not has_letter:
+            raise ValueError("Account name must contain at least one letter.")
         return name
 
     # ------------------------------------------------------------------
