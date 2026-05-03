@@ -305,14 +305,14 @@ class BankController:
         """Return the combined balance across every account."""
         return self._bank.total()
 
-    def find_account(self, name: str):
+    def find_account(self, name: str) -> Account:
         """Return the account with the given name, or None.
 
         Args:
             name: The account holder name to look up.
 
         Returns:
-            The matching Account, or None.
+            The matching Account, or None when no account is found.
         """
         return self._bank.find_by_name(name)
 

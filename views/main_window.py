@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from controllers.bank_controller import BankController, OperationResult
+from models.account import Account
 from models.checking_account import CheckingAccount
 from models.saving_account import SavingAccount
 from views.amount_dialog import AmountDialog
@@ -287,7 +288,7 @@ class MainWindow(QMainWindow):
     # Helpers
     # ------------------------------------------------------------------
 
-    def _selected_account(self):
+    def _selected_account(self) -> Account:
         """Return the Account represented by the current table row.
 
         Returns:
@@ -360,7 +361,7 @@ class MainWindow(QMainWindow):
         self._history_button.setEnabled(enable)
         self._close_button.setEnabled(enable)
 
-    def closeEvent(self, event) -> None:  # noqa: N802 - Qt signature
+    def closeEvent(self, event: object) -> None:  # noqa: N802 - Qt signature
         """Flush any in-memory state before Qt tears the window down.
 
         Args:

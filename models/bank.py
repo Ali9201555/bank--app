@@ -50,7 +50,7 @@ class Bank:
         except OSError:
             self._accounts = []
 
-    def _row_to_account(self, row: dict):
+    def _row_to_account(self, row: dict) -> Account:
         """Rebuild one Account from a CSV row, or return None on failure.
 
         Args:
@@ -123,7 +123,7 @@ class Bank:
         self._accounts.remove(target)
         self.save()
 
-    def find_by_name(self, name: str):
+    def find_by_name(self, name: str) -> Account:
         """Return the account with the given name, or None.
 
         Args:
@@ -146,7 +146,7 @@ class Bank:
         """Return the number of accounts held by the bank."""
         return len(self._accounts)
 
-    def total(self, accounts=None) -> float:
+    def total(self, accounts: list = None) -> float:
         """Return the sum of balances, matching Lab 9's get_bank_total().
 
         Args:

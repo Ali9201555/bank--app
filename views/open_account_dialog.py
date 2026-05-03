@@ -96,6 +96,6 @@ class OpenAccountDialog(QDialog):
         self._opened_name = self._name_edit.text().strip()
         self.accept()
 
-    def opened_account_name(self):
+    def opened_account_name(self) -> str:
         """Return the name of the account that was opened, or None."""
         return self._opened_name
