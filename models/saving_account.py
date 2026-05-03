@@ -6,10 +6,6 @@ Additions for Project 1: type hints, docstrings, and CSV round-trip via
 to_dict / from_dict so the deposit counter survives a restart.
 """
 
-from __future__ import annotations
-
-from typing import Dict
-
 from models.account import Account
 
 
@@ -22,9 +18,9 @@ class SavingAccount(Account):
         RATE: Interest rate applied every five successful deposits.
     """
 
-    MINIMUM: float = 100
-    RATE: float = 0.02
-    ACCOUNT_TYPE: str = "SavingAccount"
+    MINIMUM = 100
+    RATE = 0.02
+    ACCOUNT_TYPE = "SavingAccount"
 
     def __init__(self, name: str) -> None:
         """Create a savings account seeded with the minimum balance.
@@ -33,7 +29,7 @@ class SavingAccount(Account):
             name: The account holder's display name.
         """
         super().__init__(name, SavingAccount.MINIMUM)
-        self.__deposit_count: int = 0
+        self.__deposit_count = 0
 
     def apply_interest(self) -> None:
         """Grow the balance by ``RATE`` percent."""
@@ -97,15 +93,19 @@ class SavingAccount(Account):
         """Return the number of successful deposits on this account."""
         return self.__deposit_count
 
-    def to_dict(self) -> Dict[str, str]:
-        """Serialize including the deposit counter used for interest."""
+    def to_dict(self) -> dict:
+        """Serialize including the deposit counter used for interest.
+
+        Returns:
+            A dictionary of strings keyed by CSV column name.
+        """
         row = super().to_dict()
         row["account_type"] = self.ACCOUNT_TYPE
         row["extra"] = str(self.__deposit_count)
         return row
 
     @classmethod
-    def from_dict(cls, row: Dict[str, str]) -> "SavingAccount":
+    def from_dict(cls, row: dict) -> "SavingAccount":
         """Restore a savings account along with its deposit counter.
 
         Args:
@@ -120,7 +120,8 @@ class SavingAccount(Account):
         try:
             account = cls(row["name"])
             account.set_balance(float(row["balance"]))
-            account.__deposit_count = int(row.get("extra") or 0)  # noqa: SLF001
+            count_text = row.get("extra") or "0"
+            account._SavingAccount__deposit_count = int(count_text)
             return account
-        except (KeyError, TypeError) as exc:
-            raise ValueError("Malformed saving account row.") from exc
+        except (KeyError, TypeError):
+            raise ValueError("Malformed saving account row.")

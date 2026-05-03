@@ -1,9 +1,5 @@
 """Dialog showing the transaction history for one account."""
 
-from __future__ import annotations
-
-from typing import Optional
-
 from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -23,8 +19,8 @@ class HistoryDialog(QDialog):
     def __init__(
         self,
         log: TransactionLog,
-        account_name: Optional[str] = None,
-        parent: Optional[QWidget] = None,
+        account_name: str = None,
+        parent: QWidget = None,
     ) -> None:
         """Build the table and populate it.
 

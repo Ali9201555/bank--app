@@ -1,9 +1,5 @@
 """Dialog for opening a new bank account."""
 
-from __future__ import annotations
-
-from typing import Optional
-
 from PyQt6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -24,7 +20,7 @@ class OpenAccountDialog(QDialog):
     def __init__(
         self,
         controller: BankController,
-        parent: Optional[QWidget] = None,
+        parent: QWidget = None,
     ) -> None:
         """Lay out the fields and wire up OK/Cancel.
 
@@ -34,7 +30,7 @@ class OpenAccountDialog(QDialog):
         """
         super().__init__(parent)
         self._controller: BankController = controller
-        self._opened_name: Optional[str] = None
+        self._opened_name = None
         self.setWindowTitle("Open New Account")
         self.setModal(True)
         self.setMinimumWidth(340)
@@ -100,6 +96,6 @@ class OpenAccountDialog(QDialog):
         self._opened_name = self._name_edit.text().strip()
         self.accept()
 
-    def opened_account_name(self) -> Optional[str]:
+    def opened_account_name(self):
         """Return the name of the account that was opened, or None."""
         return self._opened_name

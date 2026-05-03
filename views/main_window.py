@@ -1,9 +1,5 @@
 """Main banking window."""
 
-from __future__ import annotations
-
-from typing import Optional
-
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (

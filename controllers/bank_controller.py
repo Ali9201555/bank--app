@@ -1,18 +1,12 @@
 """Controller mediating between the GUI and the bank models."""
 
-from __future__ import annotations
-
-from dataclasses import dataclass
-from typing import List, Optional
-
-from models.account import Account
 from models.bank import Bank
 from models.checking_account import CheckingAccount
 from models.saving_account import SavingAccount
+from models.account import Account
 from models.transaction import TransactionLog
 
 
-@dataclass
 class OperationResult:
     """Uniform return type for controller methods.
 
@@ -21,18 +15,21 @@ class OperationResult:
         message: Human-readable summary safe to show in a status bar.
     """
 
-    success: bool
-    message: str
+    def __init__(self, success: bool, message: str) -> None:
+        """Build an operation result.
+
+        Args:
+            success: Whether the operation succeeded.
+            message: Status-bar message describing what happened.
+        """
+        self.success = success
+        self.message = message
 
 
 class BankController:
     """Validates GUI input, mutates the Bank, and writes the txn log."""
 
-    ACCOUNT_TYPE_LABELS: List[str] = [
-        "Checking",
-        "Saving",
-        "Account (basic)",
-    ]
+    ACCOUNT_TYPE_LABELS = ["Checking", "Saving", "Account (basic)"]
 
     def __init__(self, bank: Bank, log: TransactionLog) -> None:
         """Store references to the shared bank and transaction log.
@@ -41,8 +38,8 @@ class BankController:
             bank: The Bank model holding every account.
             log: The append-only TransactionLog for audit history.
         """
-        self._bank: Bank = bank
-        self._log: TransactionLog = log
+        self._bank = bank
+        self._log = log
 
     # ------------------------------------------------------------------
     # Input validation helpers
@@ -71,8 +68,8 @@ class BankController:
             raise ValueError("Amount is required.")
         try:
             value = float(cleaned)
-        except ValueError as exc:
-            raise ValueError("Amount must be a number.") from exc
+        except ValueError:
+            raise ValueError("Amount must be a number.")
         if value <= 0:
             raise ValueError("Amount must be greater than zero.")
         return round(value, 2)
@@ -128,15 +125,14 @@ class BankController:
 
         # Saving accounts always start at MINIMUM by Lab 9 rules.
         if account_type == "Saving":
-            account: Account = SavingAccount(clean_name)
+            account = SavingAccount(clean_name)
             starting = account.get_balance()
         else:
             try:
-                starting = (
-                    self.parse_amount(starting_balance_text)
-                    if starting_balance_text
-                    else 0.0
-                )
+                if starting_balance_text:
+                    starting = self.parse_amount(starting_balance_text)
+                else:
+                    starting = 0.0
             except ValueError as exc:
                 return OperationResult(False, str(exc))
 
@@ -301,7 +297,7 @@ class BankController:
     # Read-only helpers used by the views
     # ------------------------------------------------------------------
 
-    def list_accounts(self) -> List[Account]:
+    def list_accounts(self) -> list:
         """Return every account in insertion order."""
         return self._bank.list_accounts()
 
@@ -309,8 +305,15 @@ class BankController:
         """Return the combined balance across every account."""
         return self._bank.total()
 
-    def find_account(self, name: str) -> Optional[Account]:
-        """Return the account with the given name, or None."""
+    def find_account(self, name: str):
+        """Return the account with the given name, or None.
+
+        Args:
+            name: The account holder name to look up.
+
+        Returns:
+            The matching Account, or None.
+        """
         return self._bank.find_by_name(name)
 
     def transaction_log(self) -> TransactionLog:

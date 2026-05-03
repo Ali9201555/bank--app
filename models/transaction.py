@@ -1,41 +1,50 @@
 """Transaction record kept alongside account state.
 
 Lab 9 did not have a transaction log — Project 1 adds one so the GUI
-can show history and so auditors can reconstruct any balance.
+can show history and so any balance can be reconstructed.
 """
-
-from __future__ import annotations
 
 import csv
 import os
-from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List
 
 
-@dataclass
 class Transaction:
-    """A single deposit, withdrawal, or account-opening event.
+    """A single deposit, withdrawal, or account-opening event."""
 
-    Attributes:
-        timestamp: ISO-8601 local time when the transaction occurred.
-        account_name: Name of the account involved.
-        kind: One of ``OPEN``, ``DEPOSIT``, ``WITHDRAW``, ``INTEREST``,
-            or ``CLOSE``.
-        amount: Dollar amount of the transaction.
-        balance_after: Balance immediately after the transaction.
-        detail: Optional free-text describing the event.
-    """
+    def __init__(
+        self,
+        timestamp: str,
+        account_name: str,
+        kind: str,
+        amount: float,
+        balance_after: float,
+        detail: str = "",
+    ) -> None:
+        """Create a transaction record.
 
-    timestamp: str
-    account_name: str
-    kind: str
-    amount: float
-    balance_after: float
-    detail: str = ""
+        Args:
+            timestamp: Local time the transaction happened, formatted as
+                YYYY-MM-DD HH:MM:SS.
+            account_name: Name of the account involved.
+            kind: One of OPEN, DEPOSIT, WITHDRAW, INTEREST, or CLOSE.
+            amount: Dollar amount of the transaction.
+            balance_after: Balance immediately after the transaction.
+            detail: Optional free-text describing the event.
+        """
+        self.timestamp = timestamp
+        self.account_name = account_name
+        self.kind = kind
+        self.amount = amount
+        self.balance_after = balance_after
+        self.detail = detail
 
-    def to_dict(self) -> Dict[str, str]:
-        """Serialize the transaction for CSV storage."""
+    def to_dict(self) -> dict:
+        """Serialize the transaction for CSV storage.
+
+        Returns:
+            A dictionary of strings keyed by CSV column name.
+        """
         return {
             "timestamp": self.timestamp,
             "account_name": self.account_name,
@@ -49,7 +58,7 @@ class Transaction:
 class TransactionLog:
     """CSV-backed append-only log of every Transaction."""
 
-    CSV_FIELDS: List[str] = [
+    CSV_FIELDS = [
         "timestamp",
         "account_name",
         "kind",
@@ -57,7 +66,7 @@ class TransactionLog:
         "balance_after",
         "detail",
     ]
-    MAX_ROWS: int = 2000  # Keep the log bounded.
+    MAX_ROWS = 2000  # Keep the log bounded.
 
     def __init__(self, csv_path: str) -> None:
         """Load any existing log entries into memory.
@@ -65,8 +74,8 @@ class TransactionLog:
         Args:
             csv_path: Absolute path to the transactions CSV file.
         """
-        self._csv_path: str = csv_path
-        self._rows: List[Transaction] = []
+        self._csv_path = csv_path
+        self._rows = []
         self._load()
 
     def _load(self) -> None:
@@ -89,6 +98,7 @@ class TransactionLog:
                             )
                         )
                     except (KeyError, ValueError):
+                        # Skip a corrupt row so the rest of the log loads.
                         continue
         except OSError:
             self._rows = []
@@ -134,7 +144,7 @@ class TransactionLog:
         )
         self._rows.append(txn)
         if len(self._rows) > self.MAX_ROWS:
-            self._rows = self._rows[-self.MAX_ROWS :]
+            self._rows = self._rows[-self.MAX_ROWS:]
         try:
             self._save()
         except OSError:
@@ -142,13 +152,23 @@ class TransactionLog:
             pass
         return txn
 
-    def for_account(self, account_name: str) -> List[Transaction]:
-        """Return every transaction for the named account, newest first."""
-        return list(
-            reversed([r for r in self._rows if r.account_name == account_name])
-        )
+    def for_account(self, account_name: str) -> list:
+        """Return every transaction for the named account, newest first.
 
-    def all_recent(self, limit: int = 200) -> List[Transaction]:
+        Args:
+            account_name: The account to filter by.
+
+        Returns:
+            List of Transaction objects, newest first.
+        """
+        matches = []
+        for row in self._rows:
+            if row.account_name == account_name:
+                matches.append(row)
+        matches.reverse()
+        return matches
+
+    def all_recent(self, limit: int = 200) -> list:
         """Return the newest transactions across every account.
 
         Args:
@@ -159,11 +179,14 @@ class TransactionLog:
         """
         if limit <= 0:
             return []
-        return list(reversed(self._rows[-limit:]))
+        recent = self._rows[-limit:]
+        recent = list(recent)
+        recent.reverse()
+        return recent
 
     def clear(self) -> None:
         """Erase every logged transaction."""
-        self._rows.clear()
+        self._rows = []
         try:
             self._save()
         except OSError:

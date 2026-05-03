@@ -1,9 +1,5 @@
 """Dialog that prompts for a deposit or withdrawal amount."""
 
-from __future__ import annotations
-
-from typing import Optional
-
 from PyQt6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -22,7 +18,7 @@ class AmountDialog(QDialog):
         self,
         title: str,
         account_label: str,
-        parent: Optional[QWidget] = None,
+        parent: QWidget = None,
     ) -> None:
         """Build the amount spin box.
 

@@ -1,15 +1,11 @@
 """Bank — in-memory collection of accounts with CSV persistence.
 
-The Bank owns both the list of :class:`~models.account.Account` objects
-and the :class:`~models.transaction.TransactionLog`. The original
-Lab 9 `get_bank_total()` helper lives here as :meth:`total`.
+The Bank owns the list of Account objects. The original Lab 9
+``get_bank_total()`` helper lives here as :meth:`total`.
 """
-
-from __future__ import annotations
 
 import csv
 import os
-from typing import Dict, Iterable, List, Optional, Type
 
 from models.account import Account
 from models.checking_account import CheckingAccount
@@ -19,15 +15,7 @@ from models.saving_account import SavingAccount
 class Bank:
     """Holds every account and persists them to a CSV file."""
 
-    CSV_FIELDS: List[str] = ["account_type", "name", "balance", "extra"]
-
-    # Maps the stored ``account_type`` label back to a class. Adding a new
-    # subclass only requires one line here.
-    _TYPE_MAP: Dict[str, Type[Account]] = {
-        Account.ACCOUNT_TYPE: Account,
-        SavingAccount.ACCOUNT_TYPE: SavingAccount,
-        CheckingAccount.ACCOUNT_TYPE: CheckingAccount,
-    }
+    CSV_FIELDS = ["account_type", "name", "balance", "extra"]
 
     def __init__(self, csv_path: str) -> None:
         """Load any existing accounts from disk.
@@ -35,8 +23,8 @@ class Bank:
         Args:
             csv_path: Absolute path to the accounts CSV file.
         """
-        self._csv_path: str = csv_path
-        self._accounts: List[Account] = []
+        self._csv_path = csv_path
+        self._accounts = []
         self.load()
 
     # ------------------------------------------------------------------
@@ -49,7 +37,7 @@ class Bank:
         Malformed rows are skipped rather than aborting the full load so
         a single bad record does not lock users out of every account.
         """
-        self._accounts.clear()
+        self._accounts = []
         if not os.path.exists(self._csv_path):
             return
         try:
@@ -60,9 +48,9 @@ class Bank:
                     if account is not None:
                         self._accounts.append(account)
         except OSError:
-            self._accounts.clear()
+            self._accounts = []
 
-    def _row_to_account(self, row: Dict[str, str]) -> Optional[Account]:
+    def _row_to_account(self, row: dict):
         """Rebuild one Account from a CSV row, or return None on failure.
 
         Args:
@@ -72,11 +60,15 @@ class Bank:
             The rebuilt Account or None if the row is unusable.
         """
         account_type = row.get("account_type") or Account.ACCOUNT_TYPE
-        cls = self._TYPE_MAP.get(account_type)
-        if cls is None:
-            return None
         try:
-            return cls.from_dict(row)
+            if account_type == SavingAccount.ACCOUNT_TYPE:
+                return SavingAccount.from_dict(row)
+            if account_type == CheckingAccount.ACCOUNT_TYPE:
+                return CheckingAccount.from_dict(row)
+            if account_type == Account.ACCOUNT_TYPE:
+                return Account.from_dict(row)
+            # Unknown type label — skip the row.
+            return None
         except ValueError:
             return None
 
@@ -112,9 +104,7 @@ class Bank:
         """
         name = account.get_name().strip()
         if self.find_by_name(name) is not None:
-            raise ValueError(
-                f"An account named {name!r} already exists."
-            )
+            raise ValueError(f"An account named {name!r} already exists.")
         self._accounts.append(account)
         self.save()
 
@@ -133,15 +123,22 @@ class Bank:
         self._accounts.remove(target)
         self.save()
 
-    def find_by_name(self, name: str) -> Optional[Account]:
-        """Return the account with the given name, or None."""
-        name = (name or "").strip()
+    def find_by_name(self, name: str):
+        """Return the account with the given name, or None.
+
+        Args:
+            name: The account holder name to look up.
+
+        Returns:
+            The matching Account, or None if no account is found.
+        """
+        clean = (name or "").strip()
         for account in self._accounts:
-            if account.get_name() == name:
+            if account.get_name() == clean:
                 return account
         return None
 
-    def list_accounts(self) -> List[Account]:
+    def list_accounts(self) -> list:
         """Return every account in insertion order."""
         return list(self._accounts)
 
@@ -149,11 +146,11 @@ class Bank:
         """Return the number of accounts held by the bank."""
         return len(self._accounts)
 
-    def total(self, accounts: Optional[Iterable[Account]] = None) -> float:
+    def total(self, accounts=None) -> float:
         """Return the sum of balances, matching Lab 9's get_bank_total().
 
         Args:
-            accounts: Optional iterable of accounts to sum. When omitted,
+            accounts: Optional iterable of accounts to sum. When None,
                 every account the bank owns is summed.
 
         Returns:
@@ -161,7 +158,7 @@ class Bank:
         """
         if accounts is None:
             accounts = self._accounts
-        total = 0.0
+        total_amount = 0.0
         for account in accounts:
-            total += account.get_balance()
-        return total
+            total_amount += account.get_balance()
+        return total_amount

@@ -5,22 +5,10 @@ account_balance fields. For Project 1 the same public interface is kept
 (so the original Lab 9 main.py still works) but the class gains:
 
   * Full docstrings and type hints on every method.
-  * Explicit InvalidAmountError raised on bad deposit/withdraw input.
+  * Validation in set_name.
   * A serialization hook (to_dict / from_dict) used by the Bank CSV layer.
-  * An account_type label so subclasses can round-trip through the CSV.
+  * An ACCOUNT_TYPE label so subclasses can round-trip through the CSV.
 """
-
-from __future__ import annotations
-
-from typing import Dict
-
-
-class InvalidAmountError(ValueError):
-    """Raised when a deposit or withdrawal amount cannot be accepted.
-
-    Using a named subclass of ValueError lets the GUI layer distinguish
-    "user typed nonsense" from other unrelated ValueErrors.
-    """
 
 
 class Account:
@@ -32,7 +20,7 @@ class Account:
     additive.
     """
 
-    ACCOUNT_TYPE: str = "Account"
+    ACCOUNT_TYPE = "Account"
 
     def __init__(self, name: str, balance: float = 0) -> None:
         """Create an account with a starting balance.
@@ -42,8 +30,8 @@ class Account:
             balance: The starting balance. Values below zero are clamped
                 to zero by ``set_balance`` to match Lab 9 behavior.
         """
-        self.__account_name: str = name
-        self.__account_balance: float = 0
+        self.__account_name = name
+        self.__account_balance = 0
         # Run the incoming balance through the setter so its clamping
         # rules apply consistently.
         self.set_balance(balance)
@@ -100,8 +88,7 @@ class Account:
         """Update the account holder's name.
 
         Args:
-            value: The new name. Empty strings are rejected to match the
-                validation the GUI uses.
+            value: The new name. Empty strings are rejected.
 
         Raises:
             ValueError: If ``value`` is empty after stripping whitespace.
@@ -125,12 +112,15 @@ class Account:
     # Project 1 additions (not part of Lab 9)
     # ------------------------------------------------------------------
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> dict:
         """Serialize this account to a flat string dict for CSV storage.
 
         Subclasses override this to add their own fields. The
-        ``account_type`` key is used by :meth:`Bank.load` to rebuild the
+        ``account_type`` key is used by the Bank loader to rebuild the
         right subclass when reading back from disk.
+
+        Returns:
+            A dictionary of strings keyed by CSV column name.
         """
         return {
             "account_type": self.ACCOUNT_TYPE,
@@ -140,7 +130,7 @@ class Account:
         }
 
     @classmethod
-    def from_dict(cls, row: Dict[str, str]) -> "Account":
+    def from_dict(cls, row: dict) -> "Account":
         """Reconstruct an Account from a CSV row dict.
 
         Args:
@@ -154,5 +144,5 @@ class Account:
         """
         try:
             return cls(row["name"], float(row["balance"]))
-        except (KeyError, TypeError) as exc:
-            raise ValueError("Malformed account row.") from exc
+        except (KeyError, TypeError):
+            raise ValueError("Malformed account row.")
