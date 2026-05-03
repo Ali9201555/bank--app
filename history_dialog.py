@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from models.transaction import TransactionLog
+from transaction import TransactionLog
 
 
 class HistoryDialog(QDialog):

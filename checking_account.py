@@ -6,7 +6,7 @@ Project 1 rubric and gives the GUI a realistic second account type to
 showcase.
 """
 
-from models.account import Account
+from account import Account
 
 
 class CheckingAccount(Account):

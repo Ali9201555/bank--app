@@ -1,10 +1,10 @@
 """Controller mediating between the GUI and the bank models."""
 
-from models.bank import Bank
-from models.checking_account import CheckingAccount
-from models.saving_account import SavingAccount
-from models.account import Account
-from models.transaction import TransactionLog
+from bank import Bank
+from checking_account import CheckingAccount
+from saving_account import SavingAccount
+from account import Account
+from transaction import TransactionLog
 
 
 class OperationResult:

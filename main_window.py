@@ -16,13 +16,13 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from controllers.bank_controller import BankController, OperationResult
-from models.account import Account
-from models.checking_account import CheckingAccount
-from models.saving_account import SavingAccount
-from views.amount_dialog import AmountDialog
-from views.history_dialog import HistoryDialog
-from views.open_account_dialog import OpenAccountDialog
+from bank_controller import BankController, OperationResult
+from account import Account
+from checking_account import CheckingAccount
+from saving_account import SavingAccount
+from amount_dialog import AmountDialog
+from history_dialog import HistoryDialog
+from open_account_dialog import OpenAccountDialog
 
 
 class MainWindow(QMainWindow):

@@ -39,28 +39,22 @@ for — it re-exports the classes from their new modules.
 
 ```
 bank_app/
-├── main.py                         # Project 1 GUI entry point
-├── accounts.py                     # Lab 9 compatibility shim
+├── main.py                  # GUI entry point
+├── accounts.py              # Lab 9 compatibility shim
+├── account.py               # Base Account class (Lab 9 improved)
+├── saving_account.py        # SavingAccount (Lab 9 improved)
+├── checking_account.py      # New subclass added for Project 1
+├── transaction.py           # Transaction + TransactionLog
+├── bank.py                  # CSV-backed account collection
+├── bank_controller.py       # Input validation + operations
+├── main_window.py           # Main QMainWindow
+├── open_account_dialog.py   # Open-account form
+├── amount_dialog.py         # Deposit / withdraw amount form
+├── history_dialog.py        # Transaction history viewer
 ├── requirements.txt
-├── models/
-│   ├── __init__.py
-│   ├── account.py                  # Base Account (Lab 9 improved)
-│   ├── saving_account.py           # SavingAccount (Lab 9 improved)
-│   ├── checking_account.py         # New subclass for Project 1
-│   ├── transaction.py              # Transaction + TransactionLog
-│   └── bank.py                     # CSV-backed account collection
-├── controllers/
-│   ├── __init__.py
-│   └── bank_controller.py          # Input validation + ops
-├── views/
-│   ├── __init__.py
-│   ├── main_window.py              # Main QMainWindow
-│   ├── open_account_dialog.py      # Open-account form
-│   ├── amount_dialog.py            # Deposit / withdraw amount form
-│   └── history_dialog.py           # Transaction history viewer
 └── data/
-    ├── accounts.csv                # Created on first save
-    └── transactions.csv            # Created on first transaction
+    ├── accounts.csv         # Created on first save
+    └── transactions.csv     # Created on first transaction
 ```
 
 ## Installation
@@ -86,14 +80,14 @@ python main.py
 | Inheritance              | `SavingAccount(Account)` and `CheckingAccount(Account)`                |
 | Method overriding        | `SavingAccount.deposit/withdraw/set_balance/__str__`, `CheckingAccount.withdraw/__str__` |
 | Class variables          | `SavingAccount.MINIMUM`, `SavingAccount.RATE`, `CheckingAccount.OVERDRAFT_LIMIT`, `CheckingAccount.OVERDRAFT_FEE` |
-| Polymorphism             | `Bank.total()` and `main_window` both iterate a `List[Account]` without branching on type |
-| Separation of concerns   | `models/`, `views/`, `controllers/` packages           |
+| Polymorphism             | `Bank.total()` and `main_window` both iterate a list of `Account` without branching on type |
+| Separation of concerns   | Each class / dialog / controller in its own module file |
 | Docstrings + type hints  | Every function in every module                         |
 
 ## Requirement checklist for Project 1
 
 - [x] PyQt6 GUI (no tkinter).
-- [x] Code organized into `models/`, `views/`, `controllers/` packages.
+- [x] Code split across multiple module files.
 - [x] Data stored in CSV (`accounts.csv`, `transactions.csv`).
 - [x] Keyboard input validation on every field.
 - [x] Exception handling around file I/O and user input.

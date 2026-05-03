@@ -13,10 +13,10 @@ import traceback
 
 from PyQt6.QtWidgets import QApplication, QMessageBox
 
-from controllers.bank_controller import BankController
-from models.bank import Bank
-from models.transaction import TransactionLog
-from views.main_window import MainWindow
+from bank_controller import BankController
+from bank import Bank
+from transaction import TransactionLog
+from main_window import MainWindow
 
 
 def _data_dir() -> str:

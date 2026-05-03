@@ -6,7 +6,7 @@ Additions for Project 1: type hints, docstrings, and CSV round-trip via
 to_dict / from_dict so the deposit counter survives a restart.
 """
 
-from models.account import Account
+from account import Account
 
 
 class SavingAccount(Account):

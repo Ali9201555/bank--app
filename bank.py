@@ -7,9 +7,9 @@ The Bank owns the list of Account objects. The original Lab 9
 import csv
 import os
 
-from models.account import Account
-from models.checking_account import CheckingAccount
-from models.saving_account import SavingAccount
+from account import Account
+from checking_account import CheckingAccount
+from saving_account import SavingAccount
 
 
 class Bank:
