@@ -104,24 +104,24 @@ class SavingAccount(Account):
         row["extra"] = str(self.__deposit_count)
         return row
 
-    @classmethod
-    def from_dict(cls, row: dict) -> "SavingAccount":
-        """Restore a savings account along with its deposit counter.
 
-        Args:
-            row: Mapping of CSV header to value.
+def make_saving_account_from_dict(row: dict) -> SavingAccount:
+    """Build a SavingAccount from a CSV row, restoring its deposit counter.
 
-        Returns:
-            A fully rebuilt SavingAccount.
+    Args:
+        row: Mapping of CSV header to value.
 
-        Raises:
-            ValueError: If required fields are missing or malformed.
-        """
-        try:
-            account = cls(row["name"])
-            account.set_balance(float(row["balance"]))
-            count_text = row.get("extra") or "0"
-            account._SavingAccount__deposit_count = int(count_text)
-            return account
-        except (KeyError, TypeError):
-            raise ValueError("Malformed saving account row.")
+    Returns:
+        A fully rebuilt SavingAccount.
+
+    Raises:
+        ValueError: If required fields are missing or malformed.
+    """
+    try:
+        account = SavingAccount(row["name"])
+        account.set_balance(float(row["balance"]))
+        count_text = row.get("extra") or "0"
+        account._SavingAccount__deposit_count = int(count_text)
+        return account
+    except (KeyError, TypeError):
+        raise ValueError("Malformed saving account row.")

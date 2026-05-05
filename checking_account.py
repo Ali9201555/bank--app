@@ -98,24 +98,24 @@ class CheckingAccount(Account):
         row["extra"] = str(self.__overdraft_count)
         return row
 
-    @classmethod
-    def from_dict(cls, row: dict) -> "CheckingAccount":
-        """Restore a checking account along with its overdraft counter.
 
-        Args:
-            row: Mapping of CSV header to value.
+def make_checking_account_from_dict(row: dict) -> CheckingAccount:
+    """Build a CheckingAccount from a CSV row, restoring its overdraft counter.
 
-        Returns:
-            A CheckingAccount with the same balance and overdraft count
-            as was saved.
+    Args:
+        row: Mapping of CSV header to value.
 
-        Raises:
-            ValueError: If required fields are missing or malformed.
-        """
-        try:
-            account = cls(row["name"], float(row["balance"]))
-            count_text = row.get("extra") or "0"
-            account._CheckingAccount__overdraft_count = int(count_text)
-            return account
-        except (KeyError, TypeError):
-            raise ValueError("Malformed checking account row.")
+    Returns:
+        A CheckingAccount with the same balance and overdraft count
+        as was saved.
+
+    Raises:
+        ValueError: If required fields are missing or malformed.
+    """
+    try:
+        account = CheckingAccount(row["name"], float(row["balance"]))
+        count_text = row.get("extra") or "0"
+        account._CheckingAccount__overdraft_count = int(count_text)
+        return account
+    except (KeyError, TypeError):
+        raise ValueError("Malformed checking account row.")

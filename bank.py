@@ -7,9 +7,9 @@ The Bank owns the list of Account objects. The original Lab 9
 import csv
 import os
 
-from account import Account
-from checking_account import CheckingAccount
-from saving_account import SavingAccount
+from account import Account, make_account_from_dict
+from checking_account import CheckingAccount, make_checking_account_from_dict
+from saving_account import SavingAccount, make_saving_account_from_dict
 
 
 class Bank:
@@ -62,11 +62,11 @@ class Bank:
         account_type = row.get("account_type") or Account.ACCOUNT_TYPE
         try:
             if account_type == SavingAccount.ACCOUNT_TYPE:
-                return SavingAccount.from_dict(row)
+                return make_saving_account_from_dict(row)
             if account_type == CheckingAccount.ACCOUNT_TYPE:
-                return CheckingAccount.from_dict(row)
+                return make_checking_account_from_dict(row)
             if account_type == Account.ACCOUNT_TYPE:
-                return Account.from_dict(row)
+                return make_account_from_dict(row)
             # Unknown type label — skip the row.
             return None
         except ValueError:

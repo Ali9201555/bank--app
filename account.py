@@ -129,20 +129,20 @@ class Account:
             "extra": "",
         }
 
-    @classmethod
-    def from_dict(cls, row: dict) -> "Account":
-        """Reconstruct an Account from a CSV row dict.
 
-        Args:
-            row: Mapping of CSV header to value.
+def make_account_from_dict(row: dict) -> Account:
+    """Build an Account from a CSV row dictionary.
 
-        Returns:
-            A new Account with the name and balance restored.
+    Args:
+        row: Mapping of CSV header to value.
 
-        Raises:
-            ValueError: If required fields are missing or malformed.
-        """
-        try:
-            return cls(row["name"], float(row["balance"]))
-        except (KeyError, TypeError):
-            raise ValueError("Malformed account row.")
+    Returns:
+        A new Account with the name and balance restored.
+
+    Raises:
+        ValueError: If required fields are missing or malformed.
+    """
+    try:
+        return Account(row["name"], float(row["balance"]))
+    except (KeyError, TypeError):
+        raise ValueError("Malformed account row.")
