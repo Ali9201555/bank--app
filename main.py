@@ -58,7 +58,9 @@ if __name__ == "__main__":
         raise SystemExit(main())
     except SystemExit:
         raise
-    except Exception:  # noqa: BLE001 - top-level crash handler
+    except Exception:
+        # Catch every other exception so a crash during startup shows a
+        # dialog instead of just a silent stack trace.
         message = traceback.format_exc()
         app = QApplication.instance() or QApplication(sys.argv)
         QMessageBox.critical(None, "Fatal error", message)
