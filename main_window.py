@@ -144,8 +144,7 @@ class MainWindow(QMainWindow):
 
         root.addLayout(right, stretch=1)
 
-    @staticmethod
-    def _action_button(label: str, color_hex: str) -> QPushButton:
+    def _action_button(self, label: str, color_hex: str) -> QPushButton:
         """Create one of the right-side action buttons.
 
         Args:
@@ -157,22 +156,31 @@ class MainWindow(QMainWindow):
         """
         button = QPushButton(label)
         button.setMinimumHeight(40)
-        button.setStyleSheet(
-            f"""
-            QPushButton {{
-                background-color: {color_hex};
-                color: white;
-                font-weight: 600;
-                border-radius: 8px;
-                padding: 8px 12px;
-            }}
-            QPushButton:disabled {{
-                background-color: #888;
-                color: #ddd;
-            }}
-            """
-        )
+        button.setStyleSheet(self._button_stylesheet(color_hex))
         return button
+
+    def _button_stylesheet(self, color_hex: str) -> str:
+        """Return the QSS style string for one of the action buttons.
+
+        Args:
+            color_hex: The accent color.
+
+        Returns:
+            A Qt stylesheet string.
+        """
+        return (
+            "QPushButton {"
+            "  background-color: " + color_hex + ";"
+            "  color: white;"
+            "  font-weight: 600;"
+            "  border-radius: 8px;"
+            "  padding: 8px 12px;"
+            "}"
+            "QPushButton:disabled {"
+            "  background-color: #888;"
+            "  color: #ddd;"
+            "}"
+        )
 
     def _build_status_bar(self) -> None:
         """Create the bottom status bar for operation feedback."""
