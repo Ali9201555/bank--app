@@ -5,8 +5,6 @@ can show history and so any balance can be reconstructed.
 """
 
 import csv
-import os
-from datetime import datetime
 
 
 class Transaction:
@@ -14,7 +12,7 @@ class Transaction:
 
     def __init__(
         self,
-        timestamp: str,
+        sequence: int,
         account_name: str,
         kind: str,
         amount: float,
@@ -24,15 +22,15 @@ class Transaction:
         """Create a transaction record.
 
         Args:
-            timestamp: Local time the transaction happened, formatted as
-                YYYY-MM-DD HH:MM:SS.
+            sequence: Auto-incrementing event number; the first transaction
+                stored is 1, the second is 2, and so on.
             account_name: Name of the account involved.
             kind: One of OPEN, DEPOSIT, WITHDRAW, INTEREST, or CLOSE.
             amount: Dollar amount of the transaction.
             balance_after: Balance immediately after the transaction.
             detail: Optional free-text describing the event.
         """
-        self.timestamp = timestamp
+        self.sequence = sequence
         self.account_name = account_name
         self.kind = kind
         self.amount = amount
@@ -46,7 +44,7 @@ class Transaction:
             A dictionary of strings keyed by CSV column name.
         """
         return {
-            "timestamp": self.timestamp,
+            "sequence": str(self.sequence),
             "account_name": self.account_name,
             "kind": self.kind,
             "amount": f"{self.amount:.2f}",
@@ -59,7 +57,7 @@ class TransactionLog:
     """CSV-backed append-only log of every Transaction."""
 
     CSV_FIELDS = [
-        "timestamp",
+        "sequence",
         "account_name",
         "kind",
         "amount",
@@ -72,42 +70,47 @@ class TransactionLog:
         """Load any existing log entries into memory.
 
         Args:
-            csv_path: Absolute path to the transactions CSV file.
+            csv_path: Path to the transactions CSV file (created on first save).
         """
         self._csv_path = csv_path
         self._rows = []
+        self._next_sequence = 1
         self._load()
 
     def _load(self) -> None:
         """Read every existing row, skipping malformed entries."""
-        if not os.path.exists(self._csv_path):
-            return
         try:
-            with open(self._csv_path, "r", newline="", encoding="utf-8") as handle:
-                reader = csv.DictReader(handle)
-                for row in reader:
-                    try:
-                        self._rows.append(
-                            Transaction(
-                                timestamp=row["timestamp"],
-                                account_name=row["account_name"],
-                                kind=row["kind"],
-                                amount=float(row["amount"]),
-                                balance_after=float(row["balance_after"]),
-                                detail=row.get("detail", ""),
-                            )
-                        )
-                    except (KeyError, ValueError):
-                        # Skip a corrupt row so the rest of the log loads.
-                        continue
+            handle = open(self._csv_path, "r", newline="", encoding="utf-8")
+        except FileNotFoundError:
+            return
         except OSError:
             self._rows = []
+            return
+        try:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                try:
+                    self._rows.append(
+                        Transaction(
+                            sequence=int(row["sequence"]),
+                            account_name=row["account_name"],
+                            kind=row["kind"],
+                            amount=float(row["amount"]),
+                            balance_after=float(row["balance_after"]),
+                            detail=row.get("detail", ""),
+                        )
+                    )
+                except (KeyError, ValueError):
+                    # Skip a corrupt row so the rest of the log loads.
+                    continue
+        finally:
+            handle.close()
+        # Resume numbering after the highest sequence already on disk.
+        if self._rows:
+            self._next_sequence = self._rows[-1].sequence + 1
 
     def _save(self) -> None:
         """Rewrite the full log to disk."""
-        directory = os.path.dirname(self._csv_path)
-        if directory:
-            os.makedirs(directory, exist_ok=True)
         with open(self._csv_path, "w", newline="", encoding="utf-8") as handle:
             writer = csv.DictWriter(handle, fieldnames=self.CSV_FIELDS)
             writer.writeheader()
@@ -135,13 +138,14 @@ class TransactionLog:
             The stored Transaction instance.
         """
         txn = Transaction(
-            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            sequence=self._next_sequence,
             account_name=account_name,
             kind=kind,
             amount=float(amount),
             balance_after=float(balance_after),
             detail=detail,
         )
+        self._next_sequence += 1
         self._rows.append(txn)
         if len(self._rows) > self.MAX_ROWS:
             self._rows = self._rows[-self.MAX_ROWS:]

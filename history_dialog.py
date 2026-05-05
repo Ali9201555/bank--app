@@ -49,7 +49,7 @@ class HistoryDialog(QDialog):
 
         table = QTableWidget(len(rows), 5)
         table.setHorizontalHeaderLabels(
-            ["Timestamp", "Account", "Kind", "Amount", "Balance After"]
+            ["#", "Account", "Kind", "Amount", "Balance After"]
         )
         table.verticalHeader().setVisible(False)
         table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
@@ -61,7 +61,7 @@ class HistoryDialog(QDialog):
         )
 
         for row_index, txn in enumerate(rows):
-            table.setItem(row_index, 0, QTableWidgetItem(txn.timestamp))
+            table.setItem(row_index, 0, QTableWidgetItem(str(txn.sequence)))
             table.setItem(row_index, 1, QTableWidgetItem(txn.account_name))
             table.setItem(row_index, 2, QTableWidgetItem(txn.kind))
             table.setItem(row_index, 3, QTableWidgetItem(f"${txn.amount:.2f}"))

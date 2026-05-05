@@ -5,7 +5,6 @@ The Bank owns the list of Account objects. The original Lab 9
 """
 
 import csv
-import os
 
 from account import Account, make_account_from_dict
 from checking_account import CheckingAccount, make_checking_account_from_dict
@@ -38,17 +37,22 @@ class Bank:
         a single bad record does not lock users out of every account.
         """
         self._accounts = []
-        if not os.path.exists(self._csv_path):
-            return
         try:
-            with open(self._csv_path, "r", newline="", encoding="utf-8") as handle:
-                reader = csv.DictReader(handle)
-                for row in reader:
-                    account = self._row_to_account(row)
-                    if account is not None:
-                        self._accounts.append(account)
+            handle = open(self._csv_path, "r", newline="", encoding="utf-8")
+        except FileNotFoundError:
+            # No saved file yet, start with an empty list.
+            return
         except OSError:
             self._accounts = []
+            return
+        try:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                account = self._row_to_account(row)
+                if account is not None:
+                    self._accounts.append(account)
+        finally:
+            handle.close()
 
     def _row_to_account(self, row: dict) -> Account:
         """Rebuild one Account from a CSV row, or return None on failure.
@@ -75,13 +79,13 @@ class Bank:
     def save(self) -> None:
         """Write every account back to the CSV.
 
+        The ``data`` directory is committed to the repository, so the
+        write target always exists when the app runs.
+
         Raises:
             OSError: If the file cannot be written. Callers should catch
                 this at the controller layer.
         """
-        directory = os.path.dirname(self._csv_path)
-        if directory:
-            os.makedirs(directory, exist_ok=True)
         with open(self._csv_path, "w", newline="", encoding="utf-8") as handle:
             writer = csv.DictWriter(handle, fieldnames=self.CSV_FIELDS)
             writer.writeheader()
