@@ -45,8 +45,7 @@ class BankController:
     # Input validation helpers
     # ------------------------------------------------------------------
 
-    @staticmethod
-    def parse_amount(raw: str) -> float:
+    def parse_amount(self, raw: str) -> float:
         """Parse an amount string, raising ValueError on bad input.
 
         Accepts a leading ``$`` and commas so users can paste values from
@@ -74,8 +73,7 @@ class BankController:
             raise ValueError("Amount must be greater than zero.")
         return round(value, 2)
 
-    @staticmethod
-    def validate_name(raw: str) -> str:
+    def validate_name(self, raw: str) -> str:
         """Validate and normalize a new account holder's name.
 
         Args:
@@ -329,3 +327,7 @@ class BankController:
     def transaction_log(self) -> TransactionLog:
         """Expose the transaction log for the history dialog."""
         return self._log
+
+    def save(self) -> None:
+        """Force-write the current account list to disk."""
+        self._bank.save()

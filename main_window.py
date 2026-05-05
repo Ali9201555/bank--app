@@ -369,7 +369,7 @@ class MainWindow(QMainWindow):
         self._history_button.setEnabled(enable)
         self._close_button.setEnabled(enable)
 
-    def closeEvent(self, event: object) -> None:  # noqa: N802 - Qt signature
+    def closeEvent(self, event: object) -> None:
         """Flush any in-memory state before Qt tears the window down.
 
         Args:
@@ -378,7 +378,7 @@ class MainWindow(QMainWindow):
         # Persistence is already saved eagerly on every mutation; this is
         # just a defensive final flush in case something queued up.
         try:
-            self._controller._bank.save()  # noqa: SLF001 - ok at shutdown
+            self._controller.save()
         except OSError:
             pass
         super().closeEvent(event)
