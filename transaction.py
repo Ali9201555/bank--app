@@ -109,7 +109,7 @@ class TransactionLog:
         if self._rows:
             self._next_sequence = self._rows[-1].sequence + 1
 
-    def _save(self) -> None:
+    def _write(self) -> None:
         """Rewrite the full log to disk."""
         with open(self._csv_path, "w", newline="", encoding="utf-8") as handle:
             writer = csv.DictWriter(handle, fieldnames=self.CSV_FIELDS)
@@ -150,7 +150,7 @@ class TransactionLog:
         if len(self._rows) > self.MAX_ROWS:
             self._rows = self._rows[-self.MAX_ROWS:]
         try:
-            self._save()
+            self._write()
         except OSError:
             # Logging must not crash the UI; we keep the entry in memory.
             pass
@@ -192,6 +192,6 @@ class TransactionLog:
         """Erase every logged transaction."""
         self._rows = []
         try:
-            self._save()
+            self._write()
         except OSError:
             pass

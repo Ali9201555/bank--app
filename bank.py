@@ -76,7 +76,7 @@ class Bank:
         except ValueError:
             return None
 
-    def save(self) -> None:
+    def write(self) -> None:
         """Write every account back to the CSV.
 
         The ``data`` directory is committed to the repository, so the
@@ -110,7 +110,7 @@ class Bank:
         if self.find_by_name(name) is not None:
             raise ValueError(f"An account named {name!r} already exists.")
         self._accounts.append(account)
-        self.save()
+        self.write()
 
     def remove_account(self, name: str) -> None:
         """Remove an account by name.
@@ -125,7 +125,7 @@ class Bank:
         if target is None:
             raise KeyError(f"No account named {name!r}.")
         self._accounts.remove(target)
-        self.save()
+        self.write()
 
     def find_by_name(self, name: str) -> Account:
         """Return the account with the given name, or None.

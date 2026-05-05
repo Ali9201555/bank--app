@@ -378,7 +378,7 @@ class MainWindow(QMainWindow):
         # Persistence is already saved eagerly on every mutation; this is
         # just a defensive final flush in case something queued up.
         try:
-            self._controller.save()
+            self._controller.write()
         except OSError:
             pass
         super().closeEvent(event)

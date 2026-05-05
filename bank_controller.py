@@ -220,7 +220,7 @@ class BankController:
         if not success:
             return OperationResult(False, "Deposit rejected by the account.")
         after = account.get_balance()
-        self._bank.save()
+        self._bank.write()
         self._log.record(
             account_name=name,
             kind="DEPOSIT",
@@ -288,7 +288,7 @@ class BankController:
             return OperationResult(False, detail)
 
         after = account.get_balance()
-        self._bank.save()
+        self._bank.write()
         self._log.record(
             account_name=name,
             kind="WITHDRAW",
@@ -328,6 +328,6 @@ class BankController:
         """Expose the transaction log for the history dialog."""
         return self._log
 
-    def save(self) -> None:
+    def write(self) -> None:
         """Force-write the current account list to disk."""
-        self._bank.save()
+        self._bank.write()
